@@ -52,7 +52,19 @@
                 
                 $pays = array("England", "France", "Germany", "Italy", "Spain");
                 $champ = array("Premier League", "Ligue 1", "Bundesliga", "Serie A", "Liga");
+                $saisons_id = array();
+                
+                $query_ajout_saison = $pdo->prepare($statement_saison);
+                for ($saison = 2005; $saison < 2015; $saison++) {
+                    $query_ajout_saison->execute(array($saison, $saison + 1));
+                    array_push($saisons_id, $pdo->lastInsertId());
+                }
+                
+                $query_ajout_pays = $pdo->prepare($statement_pays);
+                $query_ajout_pays->execute(array($p));
+                $id_pays = $pdo->lastInsertId();
                 $i = 0;
+                
                 foreach ($pays as $p) {
                     $query_ajout_pays = $pdo->prepare($statement_pays);
                     $query_ajout_pays->execute(array($p));
@@ -63,22 +75,41 @@
                     $id_champ_pays = $pdo->lastInsertId();
                     $i++;
                     
-                }
-                
-                $row = 2;
-                if (($handle = fopen("src/England/0.csv", "r")) !== FALSE) {
-                    while (($data = fgetcsv($handle, ",")) !== FALSE) {
-                        $row++;
-                        $home_team = $data[2];
-                        $away_team = $data[3];
-                        $query_england_club = $pdo->prepare($statement_club);
-                        $query_england_club->execute($home_team, $england_champ_id);
-                        $home_team_id = $pdo->lastInsertId();
-                        $query_england_club->execute($away_team, $england_champ_id);
-                        $away_team_id = $pdo->lastInsertId();
-                        
+                    $dossier = "src/" . $p;
+                    for ($j = 0; $j <= 9; $j++) {
+                        if (($handle = fopen($dossier . $j . ".csv", "r")) !== FALSE) {
+                            while (($data = fgetcsv($handle, ",")) !== FALSE) {
+                                $row++;
+                                $query_club = $pdo->prepare($statement_club);
+                                $query_club->execute($data[2], $england_champ_id);
+                                $home_team_id = $pdo->lastInsertId();
+                                $query_club->execute($data[3], $england_champ_id);
+                                $away_team_id = $pdo->lastInsertId();
+                                $query_ajout_rencontre = $pdo->prepare($statement_rencontre);
+                                if ($p === 'England' || ($p === 'Italy' && ($j = 0 || $j = 1))) {
+                                    $query_ajout_rencontre->execute(array($home_team_id, $away_team_id, $saisons_id[$j], 
+                                                                        $data[1], $data[5], $data[4], $data[12], $data[11],
+                                                                        $data[14], $data[13], $data[16], $data[15], 
+                                                                        $data[18], $data[17], $data[20], $data[19],
+                                                                        $data[22], $data[21]));
+                                }
+                                else if ($p === 'France' && ($j = 0 || $j = 1)) {
+                                    // les deux premieres saisons --> décalage
+                                }
+                                else {
+                                    $query_ajout_rencontre->execute(array($home_team_id, $away_team_id, $saisons_id[$j], 
+                                                                        $data[1], $data[5], $data[4], $data[11], $data[10],
+                                                                        $data[13], $data[12], $data[15], $data[14], 
+                                                                        $data[17], $data[16], $data[19], $data[18],
+                                                                        $data[21], $data[20]));
+                                }
+                                $id_rencontre = $pdo->lastInsertId();
+                                // Insérer les côtes
+                                
+                            }
+                            fclose($handle);
+                        }
                     }
-                    fclose($handle);
                 }
             }
             catch (PDOException $e) {
