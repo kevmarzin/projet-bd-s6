@@ -34,9 +34,7 @@
                                 "LB"   => array (NULL, NULL),
                                 "PS"   => array (NULL, NULL),
                                 "SO"   => array (NULL, NULL),
-                                "SB"   => array (NULL, NULL),
                                 "SJ"   => array (NULL, NULL),
-                                "SY"   => array (NULL, NULL),
                                 "VC"   => array (NULL, NULL),
                                 "WH"   => array (NULL, NULL));
             $clubs = array ();
@@ -121,12 +119,11 @@
                                             case "IWH":
                                             case "LBH":
                                             case "PSH":
-                                            case "SOH":
                                             case "SBH":
                                             case "SJH":
-                                            case "SYH":
                                             case "VCH":
                                             case "WHH":
+                                                
                                                 $nom_bookmaker = substr($data[$column], 0, strlen ($data[$column])-1);
                                                 $bookmakers[$nom_bookmaker][0] = $column;
                                                 if ($bookmakers[$nom_bookmaker][1] == NULL){
@@ -141,7 +138,7 @@
                                     echo "<br/>premiere ligne passée<br/>";
                                 }
                                 else {
-                                    // On insère le club à domicile s'il n'a pas déjà été transféré et on récupère son ID
+                                    // On insère le club à domicile s'il n'a pas déjà été ajouté et on récupère son ID
                                     if ( !array_key_exists($data[$id_column_home_team], $club)) {
                                         $query_club = $pdo->prepare($statement_club);
                                         $query_club->execute(array($data[$id_column_home_team], $id_champ_sql));
@@ -154,6 +151,7 @@
                                         $clubs[$data[$id_column_away_team]] = $pdo->lastInsertId();
                                     }
                                     
+                                    // Requête d'ajout de la rencontre
                                     $query_ajout_rencontre = $pdo->prepare($statement_rencontre);
                                     $query_ajout_rencontre->execute(array(  $clubs[$data[$id_column_home_team]],
                                                                             $clubs[$data[$id_column_away_team]],
