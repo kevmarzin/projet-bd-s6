@@ -150,7 +150,8 @@
 
                                             // Requête d'ajout de la rencontre
                                             $query_ajout_rencontre = $pdo->prepare($statement_rencontre);
-                                            $date_rencontre = DateTime::createFromFormat('d/m/y', $data[$id_column_date]);
+                                            $format_date_csv = ($id_saison == 1 && ($id_pays == 1 || $id_pays ==3)) ? 'd/m/Y' : 'd/m/y';
+                                            $date_rencontre = DateTime::createFromFormat($format_date_csv, $data[$id_column_date]);
                                             $query_ajout_rencontre->execute(array(  $clubs[$data[$id_column_home_team]],
                                                                                     $clubs[$data[$id_column_away_team]],
                                                                                     $saisons_id_sql[$id_saison], 
@@ -222,17 +223,7 @@
                                                                                  . "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
                     $pays = array("England", "France", "Germany", "Italy", "Spain");
                     $champ = array("Premier League", "Ligue 1", "Bundesliga", "Serie A", "Liga");
-                    $bookmakers = array("B365" => NULL,
-                                        "BS"   => NULL,
-                                        "BW"   => NULL,
-                                        "GB"   => NULL,
-                                        "IW"   => NULL,
-                                        "LB"   => NULL,
-                                        "PS"   => NULL,
-                                        "SO"   => NULL,
-                                        "SJ"   => NULL,
-                                        "VC"   => NULL,
-                                        "WH"   => NULL);
+                    $bookmakers = array();
                     try {
                         /// CONECTION A LA BASE ///
                         $pdo = new PDO("mysql:host=dbserver;dbname=adrbounader", "adrbounader", "girondin33");
@@ -257,11 +248,10 @@
                                                     = $id_column_ac = $id_column_hf = $id_column_af = $id_column_hy = $id_column_ay
                                                     = $id_column_hr = $id_column_ar = NULL;
                                     $row = 0;
-                                    foreach ($bookmakers as $b => $id_bookmaker) {
-                                        $id_bookmaker = NULL;
-                                    }
+                                    
                                     while (($data = fgetcsv($handle)) !== FALSE) {
                                         if ($row == 0){
+                                            $bookmakers = array();
                                             for ($column = 0; $column < count ($data); $column++){
                                                 switch ($data[$column]){
                                                     case "Date": $id_column_date = $column; break;
@@ -293,6 +283,7 @@
                                                     case "VCH":
                                                     case "WHH":
                                                         $nom_bookmaker = substr($data[$column], 0, strlen ($data[$column])-1);
+                                                        echo $nom_bookmaker;
                                                         $bookmakers[$nom_bookmaker] = $column;
                                                         break;
                                                     default: break;
@@ -301,7 +292,8 @@
                                         }
                                         else {
                                             // Requête d'ajout de la rencontre
-                                            $date_rencontre = DateTime::createFromFormat('d/m/y', $data[$id_column_date]);
+                                            $format_date_csv = ($id_saison == 1 && ($id_pays == 1 || $id_pays ==3)) ? 'd/m/Y' : 'd/m/y';
+                                            $date_rencontre = DateTime::createFromFormat($format_date_csv, $data[$id_column_date]);
                                             $query_ajout_rencontre = $pdo->prepare($statement_rencontre);
                                             $query_ajout_rencontre->execute(array(  $champ[$id_pays],
                                                                                     $pays[$id_pays],
@@ -324,39 +316,39 @@
                                                                                     $id_column_hy   != NULL ? $data[$id_column_hy]   : NULL,
                                                                                     $id_column_ar   != NULL ? $data[$id_column_ar]   : NULL,
                                                                                     $id_column_hr   != NULL ? $data[$id_column_hr]   : NULL,
-                                                                                    $boomakers["B365"] != NULL ? $data[$boomakers["B365"]] : NULL,
-                                                                                    $boomakers["B365"] != NULL ? $data[$boomakers["B365"]+1] : NULL,
-                                                                                    $boomakers["B365"] != NULL ? $data[$boomakers["B365"]+2] : NULL,
-                                                                                    $boomakers["BS"]   != NULL ? $data[$boomakers["BS"]] : NULL,
-                                                                                    $boomakers["BS"]   != NULL ? $data[$boomakers["BS"]+1] : NULL,
-                                                                                    $boomakers["BS"]   != NULL ? $data[$boomakers["BS"]+2] : NULL,
-                                                                                    $boomakers["BW"]   != NULL ? $data[$boomakers["BW"]] : NULL,
-                                                                                    $boomakers["BW"]   != NULL ? $data[$boomakers["BW"]+1] : NULL,
-                                                                                    $boomakers["BW"]   != NULL ? $data[$boomakers["BW"]+2] : NULL,
-                                                                                    $boomakers["GB"]   != NULL ? $data[$boomakers["GB"]] : NULL,
-                                                                                    $boomakers["GB"]   != NULL ? $data[$boomakers["GB"]+1] : NULL,
-                                                                                    $boomakers["GB"]   != NULL ? $data[$boomakers["GB"]+2] : NULL,
-                                                                                    $boomakers["IW"]   != NULL ? $data[$boomakers["IW"]] : NULL,
-                                                                                    $boomakers["IW"]   != NULL ? $data[$boomakers["IW"]+1] : NULL,
-                                                                                    $boomakers["IW"]   != NULL ? $data[$boomakers["IW"]+2] : NULL,
-                                                                                    $boomakers["LB"]   != NULL ? $data[$boomakers["LB"]] : NULL,
-                                                                                    $boomakers["LB"]   != NULL ? $data[$boomakers["LB"]+1] : NULL,
-                                                                                    $boomakers["LB"]   != NULL ? $data[$boomakers["LB"]+2] : NULL,
-                                                                                    $boomakers["PS"]   != NULL ? $data[$boomakers["PS"]] : NULL,
-                                                                                    $boomakers["PS"]   != NULL ? $data[$boomakers["PS"]+1] : NULL,
-                                                                                    $boomakers["PS"]   != NULL ? $data[$boomakers["PS"]+2] : NULL,
-                                                                                    $boomakers["SO"]   != NULL ? $data[$boomakers["SO"]] : NULL,
-                                                                                    $boomakers["SO"]   != NULL ? $data[$boomakers["SO"]+1] : NULL,
-                                                                                    $boomakers["SO"]   != NULL ? $data[$boomakers["SO"]+2] : NULL,
-                                                                                    $boomakers["SJ"]   != NULL ? $data[$boomakers["SJ"]] : NULL,
-                                                                                    $boomakers["SJ"]   != NULL ? $data[$boomakers["SJ"]+1] : NULL,
-                                                                                    $boomakers["SJ"]   != NULL ? $data[$boomakers["SJ"]+2] : NULL,
-                                                                                    $boomakers["VC"]   != NULL ? $data[$boomakers["VC"]] : NULL,
-                                                                                    $boomakers["VC"]   != NULL ? $data[$boomakers["VC"]+1] : NULL,
-                                                                                    $boomakers["VC"]   != NULL ? $data[$boomakers["VC"]+2] : NULL,
-                                                                                    $boomakers["WH"]   != NULL ? $data[$boomakers["WH"]] : NULL,
-                                                                                    $boomakers["WH"]   != NULL ? $data[$boomakers["WH"]+1] : NULL,
-                                                                                    $boomakers["WH"]   != NULL ? $data[$boomakers["WH"]+2] : NULL));
+                                                                                    array_key_exists("B365", $bookmakers) ? $data[$bookmakers["B365"]] : NULL,
+                                                                                    array_key_exists("B365", $bookmakers) ? $data[$bookmakers["B365"]+1] : NULL,
+                                                                                    array_key_exists("B365", $bookmakers) ? $data[$bookmakers["B365"]+2] : NULL,
+                                                                                    array_key_exists("BS", $bookmakers)   ? $data[$bookmakers["BS"]] : NULL,
+                                                                                    array_key_exists("BS", $bookmakers)   ? $data[$bookmakers["BS"]+1] : NULL,
+                                                                                    array_key_exists("BS", $bookmakers)   ? $data[$bookmakers["BS"]+2] : NULL,
+                                                                                    array_key_exists("BW", $bookmakers)   ? $data[$bookmakers["BW"]] : NULL,
+                                                                                    array_key_exists("BW", $bookmakers)   ? $data[$bookmakers["BW"]+1] : NULL,
+                                                                                    array_key_exists("BW", $bookmakers)   ? $data[$bookmakers["BW"]+2] : NULL,
+                                                                                    array_key_exists("GB", $bookmakers)   ? $data[$bookmakers["GB"]] : NULL,
+                                                                                    array_key_exists("GB", $bookmakers)   ? $data[$bookmakers["GB"]+1] : NULL,
+                                                                                    array_key_exists("GB", $bookmakers)   ? $data[$bookmakers["GB"]+2] : NULL,
+                                                                                    array_key_exists("IW", $bookmakers)   ? $data[$bookmakers["IW"]] : NULL,
+                                                                                    array_key_exists("IW", $bookmakers)   ? $data[$bookmakers["IW"]+1] : NULL,
+                                                                                    array_key_exists("IW", $bookmakers)   ? $data[$bookmakers["IW"]+2] : NULL,
+                                                                                    array_key_exists("LB", $bookmakers)   ? $data[$bookmakers["LB"]] : NULL,
+                                                                                    array_key_exists("LB", $bookmakers)   ? $data[$bookmakers["LB"]+1] : NULL,
+                                                                                    array_key_exists("LB", $bookmakers)   ? $data[$bookmakers["LB"]+2] : NULL,
+                                                                                    array_key_exists("PS", $bookmakers)   ? $data[$bookmakers["PS"]] : NULL,
+                                                                                    array_key_exists("PS", $bookmakers)   ? $data[$bookmakers["PS"]+1] : NULL,
+                                                                                    array_key_exists("PS", $bookmakers)   ? $data[$bookmakers["PS"]+2] : NULL,
+                                                                                    array_key_exists("SO", $bookmakers)   ? $data[$bookmakers["SO"]] : NULL,
+                                                                                    array_key_exists("SO", $bookmakers)   ? $data[$bookmakers["SO"]+1] : NULL,
+                                                                                    array_key_exists("SO", $bookmakers)   ? $data[$bookmakers["SO"]+2] : NULL,
+                                                                                    array_key_exists("SJ", $bookmakers)   ? $data[$bookmakers["SJ"]] : NULL,
+                                                                                    array_key_exists("SJ", $bookmakers)   ? $data[$bookmakers["SJ"]+1] : NULL,
+                                                                                    array_key_exists("SJ", $bookmakers)   ? $data[$bookmakers["SJ"]+2] : NULL,
+                                                                                    array_key_exists("VC", $bookmakers)   ? $data[$bookmakers["VC"]] : NULL,
+                                                                                    array_key_exists("VC", $bookmakers)   ? $data[$bookmakers["VC"]+1] : NULL,
+                                                                                    array_key_exists("VC", $bookmakers)   ? $data[$bookmakers["VC"]+2] : NULL,
+                                                                                    array_key_exists("WH", $bookmakers)   ? $data[$bookmakers["WH"]] : NULL,
+                                                                                    array_key_exists("WH", $bookmakers)   ? $data[$bookmakers["WH"]+1] : NULL,
+                                                                                    array_key_exists("WH", $bookmakers)   ? $data[$bookmakers["WH"]+2] : NULL));
                                         }
                                         $row++;
                                     }
