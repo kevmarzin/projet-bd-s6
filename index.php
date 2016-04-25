@@ -231,10 +231,9 @@
                         /// ON VIDE LA TABLES ///
                         $pdo->exec("TRUNCATE `Rencontre_a_plat`;");
                         
-                        $cpt = 0;
                         $saisons = array ();
                         for ($annee_debut = 2005; $annee_debut < 2015; $annee_debut++) {
-                            $saisons[$cpt] = array ($annee_debut, $annee_debut + 1);
+                            array_push($saisons, array ($annee_debut, $annee_debut + 1));
                         }
 
                         /// INSERTION RENCONTRE + COTE ///
@@ -248,7 +247,6 @@
                                                     = $id_column_ac = $id_column_hf = $id_column_af = $id_column_hy = $id_column_ay
                                                     = $id_column_hr = $id_column_ar = NULL;
                                     $row = 0;
-                                    
                                     while (($data = fgetcsv($handle)) !== FALSE) {
                                         if ($row == 0){
                                             $bookmakers = array();
