@@ -1,10 +1,14 @@
 SET @Debut_Saison = 2014;
 SET @Champ = 'Liga';
+SET @Nb_Match_par_saison = (CASE 
+								WHEN @Champ = 'Bundesliga' THEN 34
+								ELSE 38
+							END);
 
 SELECT      Club,
-            ROUND((CV/(CV+CN+CD))*38) AS Prediction_V, V, CONCAT(((ROUND((CV/(CV+CN+CD))*38)-V)/V)*100,'%') AS ErreurV,
-            ROUND((CN/(CV+CN+CD))*38) AS Prediction_N, N, CONCAT(((ROUND((CN/(CV+CN+CD))*38)-N)/N)*100,'%') AS ErreurN,
-            ROUND((CD/(CV+CN+CD))*38) AS Prediction_D, D, CONCAT(((ROUND((CD/(CV+CN+CD))*38)-D)/D)*100,'%') AS ErreurN
+            ROUND((CV/(CV+CN+CD))*@Nb_Match_par_saison) AS Prediction_V, V, CONCAT(ROUND(((((CV/(CV+CN+CD))*@Nb_Match_par_saison)-V)/V)*100,2),'%') AS ErreurV,
+            ROUND((CN/(CV+CN+CD))*@Nb_Match_par_saison) AS Prediction_N, N, CONCAT(ROUND(((((CN/(CV+CN+CD))*@Nb_Match_par_saison)-N)/N)*100,2),'%') AS ErreurN,
+            ROUND((CD/(CV+CN+CD))*@Nb_Match_par_saison) AS Prediction_D, D, CONCAT(ROUND(((((CD/(CV+CN+CD))*@Nb_Match_par_saison)-D)/D)*100,2),'%') AS ErreurN
         FROM (
                 SELECT Renc_Id, `Liste_Cotes`.Club_Nom AS Club, 1/AVG(`Liste_Cotes`.Cote_Victoire) AS CV, 1/AVG(`Liste_Cotes`.Cote_Nul) AS CN, 1/AVG(`Liste_Cotes`.Cote_Defaite) AS CD
                 FROM ((SELECT Renc_Id, `Club`.Club_Nom, `Cote`.Cote_Domicile AS Cote_Victoire, `Cote`.Cote_Nul AS Cote_Nul,

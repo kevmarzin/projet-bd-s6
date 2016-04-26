@@ -1,6 +1,11 @@
 SET @Debut_Saison = 2014;
 SET @Champ = 'Liga';
-SELECT Nom_Club AS Club, Round(Pred_V*38) AS Prediction_V, ROUND(Pred_N*38) AS Prediction_N, ROUND(Pred_D*38) AS Prediction_D
+SET @Nb_Match_par_saison = (CASE 
+								WHEN @Champ = 'Bundesliga' THEN 34
+								ELSE 38
+							END);
+							
+SELECT Nom_Club AS Club, Round(Pred_V*@Nb_Match_par_saison) AS Prediction_V, ROUND(Pred_N*@Nb_Match_par_saison) AS Prediction_N, ROUND(Pred_D*@Nb_Match_par_saison) AS Prediction_D
 FROM (
 SELECT Nom_Club, 1/AVG(Cote_Victoire) AS Pred_V, 1/AVG(Cote_Nul) AS Pred_N, 1/AVG(Cote_Defaite) AS Pred_D
 FROM
